@@ -1,0 +1,25 @@
+{
+  "name": "@sentinel/engine",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The deterministic policy evaluation engine. Pure functions only: no I/O, no clock, no randomness.",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --build tsconfig.build.json"
+  },
+  "dependencies": {
+    "@sentinel/dsl": "1.0.0",
+    "@sentinel/shared": "1.0.0"
+  }
+}
