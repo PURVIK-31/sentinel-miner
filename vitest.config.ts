@@ -18,6 +18,7 @@ export default defineConfig({
       '@sentinel/shared': pkg('shared'),
       '@sentinel/dsl': pkg('dsl'),
       '@sentinel/engine': pkg('engine'),
+      '@sentinel/normalizer': pkg('normalizer'),
     },
   },
   test: {

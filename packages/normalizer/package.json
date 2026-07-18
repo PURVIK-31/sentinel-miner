@@ -1,0 +1,28 @@
+{
+  "name": "@sentinel/normalizer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Converts provider payloads into deterministic integer evidence. Fail-closed rounding, versioned rules.",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --build tsconfig.build.json"
+  },
+  "dependencies": {
+    "@sentinel/shared": "1.0.0"
+  },
+  "devDependencies": {
+    "@sentinel/dsl": "1.0.0",
+    "@sentinel/engine": "1.0.0"
+  }
+}
