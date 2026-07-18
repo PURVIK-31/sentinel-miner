@@ -265,10 +265,13 @@ describe('provider precedence', () => {
     expect(reversed.sources).toEqual(forward.sources);
   });
 
-  it('records the superseded contribution as an issue', () => {
+  it('records the losing claim under superseded, not under issues', () => {
+    // Supersession is the system working as designed; `issues` is for problems.
     const bundle = normalizeEvidence(conflicting, [], ['goplus', 'dexscreener']);
-    expect(bundle.issues[0]).toMatchObject({ field: 'buy_tax_bp', provider: 'dexscreener' });
-    expect(bundle.issues[0]?.reason).toContain('superseded by goplus');
+    expect(bundle.issues).toEqual([]);
+    expect(bundle.superseded).toEqual([
+      { field: 'buy_tax_bp', provider: 'dexscreener', winner: 'goplus' },
+    ]);
   });
 
   it('ranks unlisted providers after listed ones, stably', () => {

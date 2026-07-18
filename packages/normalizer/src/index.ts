@@ -22,6 +22,7 @@ export type {
   ProviderSnapshot,
   FieldContribution,
   NormalizationIssue,
+  SupersededClaim,
   NormalizedBundle,
 } from './normalize.js';
 export { normalizeEvidence, normalizeField, isDeterministicEvidence } from './normalize.js';

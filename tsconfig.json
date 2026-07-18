@@ -10,6 +10,7 @@
     { "path": "./packages/shared/tsconfig.build.json" },
     { "path": "./packages/dsl/tsconfig.build.json" },
     { "path": "./packages/engine/tsconfig.build.json" },
-    { "path": "./packages/normalizer/tsconfig.build.json" }
+    { "path": "./packages/normalizer/tsconfig.build.json" },
+    { "path": "./packages/providers/tsconfig.build.json" }
   ]
 }

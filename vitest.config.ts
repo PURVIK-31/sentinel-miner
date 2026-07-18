@@ -19,6 +19,7 @@ export default defineConfig({
       '@sentinel/dsl': pkg('dsl'),
       '@sentinel/engine': pkg('engine'),
       '@sentinel/normalizer': pkg('normalizer'),
+      '@sentinel/providers': pkg('providers'),
     },
   },
   test: {

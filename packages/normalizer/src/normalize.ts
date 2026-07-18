@@ -51,6 +51,23 @@ export interface NormalizationIssue {
   readonly reason: string;
 }
 
+/**
+ * A claim that lost to a higher-precedence provider.
+ *
+ * Kept separate from {@link NormalizationIssue} on purpose. Supersession is the
+ * system working as designed — two providers both knew the answer and the more
+ * authoritative one won. Filing it under `issues` would bury genuine problems
+ * (a malformed value, an unknown field) in routine noise, and an operator
+ * checking whether collection went well needs those to be distinguishable.
+ */
+export interface SupersededClaim {
+  readonly field: string;
+  /** The provider whose claim was not used. */
+  readonly provider: string;
+  /** The higher-precedence provider whose claim was used instead. */
+  readonly winner: string;
+}
+
 /** The result of normalizing a set of provider responses. */
 export interface NormalizedBundle {
   /** Ruleset version that produced this evidence. Carried into the proof. */
@@ -61,8 +78,10 @@ export interface NormalizedBundle {
   readonly sources: Readonly<Record<string, string>>;
   /** Untouched provider payloads, for audit only. */
   readonly raw: readonly ProviderSnapshot[];
-  /** Contributions that were dropped, with the reason for each. */
+  /** Contributions that could not be used, with the reason for each. */
   readonly issues: readonly NormalizationIssue[];
+  /** Claims that lost to a higher-precedence provider. Routine, not a problem. */
+  readonly superseded: readonly SupersededClaim[];
 }
 
 /**
@@ -165,7 +184,7 @@ function describe(value: unknown): string {
  * Normalizes provider contributions into a deterministic evidence bundle.
  *
  * When two providers claim the same field, the first contribution in
- * `precedence` order wins and the later one is recorded as an issue. Precedence
+ * `precedence` order wins and the later one is recorded in `superseded`. Precedence
  * is explicit rather than "last writer wins" so the result cannot depend on the
  * order provider requests happened to resolve in — that would make evidence, and
  * therefore proofs, non-reproducible.
@@ -200,6 +219,7 @@ export function normalizeEvidence(
   const evidence = Object.create(null) as Record<string, EvidenceValue>;
   const sources = Object.create(null) as Record<string, string>;
   const issues: NormalizationIssue[] = [];
+  const superseded: SupersededClaim[] = [];
 
   for (const contribution of ordered) {
     const { field, provider, value } = contribution;
@@ -220,11 +240,7 @@ export function normalizeEvidence(
     }
 
     if (Object.hasOwn(evidence, field)) {
-      issues.push({
-        field,
-        provider,
-        reason: `superseded by ${sources[field] ?? 'a higher-precedence provider'}`,
-      });
+      superseded.push({ field, provider, winner: sources[field] ?? 'unknown' });
       continue;
     }
 
@@ -244,6 +260,7 @@ export function normalizeEvidence(
     sources: Object.freeze(sources),
     raw: Object.freeze([...snapshots]),
     issues: Object.freeze(issues),
+    superseded: Object.freeze(superseded),
   };
 }
 

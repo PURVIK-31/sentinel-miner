@@ -52,7 +52,15 @@ export default tseslint.config(
   {
     files: ['**/*.test.ts', '**/*.spec.ts'],
     rules: {
+      // Tests assert on values they just constructed; a null check would be noise.
       '@typescript-eslint/no-non-null-assertion': 'off',
+      // Test doubles implement Promise-returning interfaces with canned values.
+      // `async () => value` is the idiomatic way to satisfy the signature, and
+      // there is nothing to await — the rule adds no safety here.
+      '@typescript-eslint/require-await': 'off',
+      // Evidence and payload records are addressed by dynamic field name, so
+      // bracket access is the honest form even when the key is a literal.
+      '@typescript-eslint/dot-notation': 'off',
     },
   },
   {
