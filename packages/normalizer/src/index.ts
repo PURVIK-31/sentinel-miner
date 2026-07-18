@@ -26,3 +26,11 @@ export type {
   NormalizedBundle,
 } from './normalize.js';
 export { normalizeEvidence, normalizeField, isDeterministicEvidence } from './normalize.js';
+
+export type { DerivedFieldSpec } from './derived.js';
+export {
+  DERIVED_FIELDS,
+  DERIVED_FIELD_NAMES,
+  isDerivedField,
+  buildEvaluationView,
+} from './derived.js';

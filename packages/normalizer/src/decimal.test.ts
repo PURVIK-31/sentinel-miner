@@ -83,6 +83,36 @@ describe('toWholeUnits — rounding direction', () => {
   });
 });
 
+describe('negative scale (division)', () => {
+  it('converts milliseconds to whole seconds', () => {
+    expect(toScaledInteger('1700000000000', -3, 'ceil')).toBe(1_700_000_000);
+    expect(toScaledInteger(1_700_000_000_000, -3, 'floor')).toBe(1_700_000_000);
+  });
+
+  it('applies the rounding mode to discarded sub-second precision', () => {
+    // 1700000000500ms is 1700000000.5s — the half-second must not vanish silently.
+    expect(toScaledInteger('1700000000500', -3, 'ceil')).toBe(1_700_000_001);
+    expect(toScaledInteger('1700000000500', -3, 'floor')).toBe(1_700_000_000);
+  });
+
+  it('divides exactly, without float error', () => {
+    // 0.1 + 0.2 style error would show up here as an off-by-one second.
+    expect(toScaledInteger('3', -1, 'floor')).toBe(0);
+    expect(toScaledInteger('3', -1, 'ceil')).toBe(1);
+    expect(toScaledInteger('30', -1, 'ceil')).toBe(3);
+  });
+
+  it('handles negative values under division', () => {
+    expect(toScaledInteger('-1500', -3, 'floor')).toBe(-2);
+    expect(toScaledInteger('-1500', -3, 'ceil')).toBe(-1);
+  });
+
+  it('preserves an exact division in both directions', () => {
+    expect(toScaledInteger('5000', -3, 'floor')).toBe(5);
+    expect(toScaledInteger('5000', -3, 'ceil')).toBe(5);
+  });
+});
+
 describe('boundary values', () => {
   it('handles zero identically in both directions and never yields -0', () => {
     for (const mode of ['floor', 'ceil'] as const) {
@@ -187,8 +217,7 @@ describe('rejection', () => {
     },
   );
 
-  it('rejects a negative or fractional scale', () => {
-    expect(() => toScaledInteger('1', -1, 'floor')).toThrow(NormalizationError);
+  it('rejects a fractional scale', () => {
     expect(() => toScaledInteger('1', 1.5, 'floor')).toThrow(NormalizationError);
   });
 

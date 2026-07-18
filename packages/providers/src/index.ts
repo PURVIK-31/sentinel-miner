@@ -41,7 +41,6 @@ export {
   createDexScreenerProvider,
   extractDexScreener,
   selectPair,
-  pairAgeSeconds,
   dexScreenerChainSlug,
   DEXSCREENER_FIELDS,
 } from './adapters/dexscreener.js';

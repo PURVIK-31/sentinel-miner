@@ -23,7 +23,7 @@ import {
   type Evidence,
   type EvidenceValue,
 } from '@sentinel/shared';
-import { toBasisPoints, toWholeUnits } from './decimal.js';
+import { toScaledInteger } from './decimal.js';
 import { getFieldSpec, NORMALIZATION_VERSION, type FieldSpec } from './fields.js';
 
 /** A raw provider response, preserved verbatim for audit. */
@@ -144,19 +144,24 @@ export function normalizeField(spec: FieldSpec, value: unknown): FieldResult {
     }
     case 'basis_points':
     case 'whole_units':
-    case 'count': {
+    case 'count':
+    case 'unix_seconds': {
       if (typeof value !== 'string' && typeof value !== 'number') {
         return { ok: false, reason: `expected a number, received ${describe(value)}` };
       }
       // Every numeric spec declares a rounding mode; the catalog's type enforces it.
       const rounding = spec.rounding ?? 'floor';
+      const scale = spec.scale ?? DEFAULT_SCALE[spec.unit];
       try {
-        const converted =
-          spec.unit === 'basis_points'
-            ? toBasisPoints(value, rounding)
-            : toWholeUnits(value, rounding);
-        if (spec.unit === 'count' && converted < 0) {
-          return { ok: false, reason: 'a count cannot be negative' };
+        const converted = toScaledInteger(value, scale, rounding);
+        if ((spec.unit === 'count' || spec.unit === 'unix_seconds') && converted < 0) {
+          return {
+            ok: false,
+            reason:
+              spec.unit === 'count'
+                ? 'a count cannot be negative'
+                : 'a timestamp before the Unix epoch is not plausible',
+          };
         }
         return { ok: true, value: converted };
       } catch (error) {
@@ -168,6 +173,23 @@ export function normalizeField(spec: FieldSpec, value: unknown): FieldResult {
     }
   }
 }
+
+/** The units that carry a numeric value and therefore a scale. */
+type NumericUnit = 'basis_points' | 'whole_units' | 'count' | 'unix_seconds';
+
+/**
+ * Default power of ten per unit, when a field declares no explicit scale.
+ *
+ * `basis_points` multiplies a fraction by 10^4. The rest are already whole
+ * units, so a field only needs an explicit `scale` when the provider reports in
+ * sub-units — as DexScreener does with millisecond timestamps.
+ */
+const DEFAULT_SCALE: Readonly<Record<NumericUnit, number>> = Object.freeze({
+  basis_points: 4,
+  whole_units: 0,
+  count: 0,
+  unix_seconds: 0,
+});
 
 /** Describes an unusable value for an issue message, without leaking its content. */
 function describe(value: unknown): string {

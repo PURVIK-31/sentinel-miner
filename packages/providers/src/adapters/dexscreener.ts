@@ -1,7 +1,12 @@
 /**
  * DexScreener market data adapter.
  *
- * Supplies the market-side evidence: liquidity, volume, market cap, pair age.
+ * Supplies the market-side evidence: liquidity, volume, market cap, and the
+ * instant the pair was created.
+ *
+ * Extraction reads no clock. The pair's *creation time* is a stable fact and is
+ * contributed as evidence; its *age* is derived at evaluation time from the
+ * evaluation context. See docs/adr/0004-evidence-versus-context.md.
  *
  * ## The pair-selection problem
  *
@@ -78,7 +83,7 @@ export const DEXSCREENER_FIELDS: readonly string[] = Object.freeze([
   'liquidity_usd',
   'volume_24h_usd',
   'market_cap_usd',
-  'pair_age_seconds',
+  'pair_created_at_unix',
   'chain',
   'token_symbol',
 ]);
@@ -111,27 +116,10 @@ export function selectPair(
   })[0];
 }
 
-/**
- * Computes pair age in whole seconds.
- *
- * Takes the current time as an argument rather than reading the clock, so the
- * extraction stays a pure function and can be tested without freezing time.
- * Returns `undefined` for a creation timestamp in the future, which would
- * otherwise yield a negative age and be rejected downstream as an invalid count.
- */
-export function pairAgeSeconds(createdAtMs: number | undefined, nowMs: number): number | undefined {
-  if (createdAtMs === undefined || !Number.isFinite(createdAtMs)) {
-    return undefined;
-  }
-  const ageMs = nowMs - createdAtMs;
-  return ageMs < 0 ? undefined : Math.floor(ageMs / 1000);
-}
-
 /** Extracts field claims from a validated DexScreener payload. */
 export function extractDexScreener(
   payload: DexScreenerResponse,
   request: EvidenceRequest,
-  nowMs: number = Date.now(),
 ): FieldContribution[] {
   const contributions: FieldContribution[] = [];
   const pair = selectPair(payload.pairs ?? [], request.chain);
@@ -147,7 +135,9 @@ export function extractDexScreener(
   add('volume_24h_usd', pair.volume?.h24);
   // `marketCap` is the reported figure; `fdv` is the fully-diluted fallback.
   add('market_cap_usd', pair.marketCap ?? pair.fdv);
-  add('pair_age_seconds', pairAgeSeconds(pair.pairCreatedAt, nowMs));
+  // The raw millisecond instant. The normalizer converts it to seconds; age is
+  // derived at evaluation time from the context, never stored as evidence.
+  add('pair_created_at_unix', pair.pairCreatedAt);
   add('chain', pair.chainId);
   add('token_symbol', pair.baseToken?.symbol);
 
@@ -167,7 +157,7 @@ export function createDexScreenerProvider(
       buildUrl(request) {
         return `${baseUrl}/latest/dex/tokens/${encodeURIComponent(request.address)}`;
       },
-      extract: (payload, request) => extractDexScreener(payload, request),
+      extract: extractDexScreener,
     },
     deps,
   );

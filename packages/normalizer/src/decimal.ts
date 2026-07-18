@@ -127,7 +127,9 @@ function hasNonZero(digits: string): boolean {
  *                  what it means, whereas a JSON number has already been through
  *                  a float.
  * @param scale     Power of ten to multiply by. `4` converts a rate to basis
- *                  points; `0` converts to whole units.
+ *                  points, `0` converts to whole units, and a **negative** scale
+ *                  divides — `-3` converts milliseconds to seconds. Dividing
+ *                  discards precision, so the rounding mode applies there too.
  * @param rounding  Direction to round any discarded precision.
  *
  * @throws {NormalizationError} if the input is not a finite decimal, or if the
@@ -139,8 +141,8 @@ export function toScaledInteger(
   scale: number,
   rounding: RoundingMode,
 ): number {
-  if (!Number.isInteger(scale) || scale < 0) {
-    reject(input, `scale must be a non-negative integer, received ${String(scale)}`);
+  if (!Number.isInteger(scale)) {
+    reject(input, `scale must be an integer, received ${String(scale)}`);
   }
   if (typeof input === 'number' && !Number.isFinite(input)) {
     reject(input, 'the value is not finite');

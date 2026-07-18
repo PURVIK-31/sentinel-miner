@@ -30,7 +30,10 @@ describe('the field catalog', () => {
     const specs: readonly FieldSpec[] = FIELD_CATALOG;
     for (const spec of specs) {
       const numeric =
-        spec.unit === 'basis_points' || spec.unit === 'whole_units' || spec.unit === 'count';
+        spec.unit === 'basis_points' ||
+        spec.unit === 'whole_units' ||
+        spec.unit === 'count' ||
+        spec.unit === 'unix_seconds';
       expect(numeric ? spec.rounding !== undefined : spec.rounding === undefined).toBe(true);
     }
   });
@@ -38,19 +41,15 @@ describe('the field catalog', () => {
   it('rounds every cost up and every resource down', () => {
     // The fail-closed invariant, asserted directly against the catalog.
     const costs = ['buy_tax_bp', 'sell_tax_bp', 'transfer_tax_bp'];
-    const resources = [
-      'liquidity_usd',
-      'volume_24h_usd',
-      'market_cap_usd',
-      'holder_count',
-      'pair_age_seconds',
-    ];
+    const resources = ['liquidity_usd', 'volume_24h_usd', 'market_cap_usd', 'holder_count'];
     for (const field of costs) {
       expect(specFor(field).rounding).toBe('ceil');
     }
     for (const field of resources) {
       expect(specFor(field).rounding).toBe('floor');
     }
+    // A creation instant rounds up: later looks younger, the conservative read.
+    expect(specFor('pair_created_at_unix').rounding).toBe('ceil');
   });
 
   it('gives every field a rationale, so the direction is never unexplained', () => {

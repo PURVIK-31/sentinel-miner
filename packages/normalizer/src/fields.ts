@@ -27,7 +27,7 @@ import type { RoundingMode } from './decimal.js';
  * when a field is added or removed. It is carried in the proof so an archived
  * decision can be re-derived exactly.
  */
-export const NORMALIZATION_VERSION = '1.0';
+export const NORMALIZATION_VERSION = '1.1';
 
 /** How a normalized field is represented in evidence. */
 export type FieldUnit =
@@ -37,6 +37,16 @@ export type FieldUnit =
   | 'whole_units'
   /** A non-negative integer tally. */
   | 'count'
+  /**
+   * An absolute instant, as whole seconds since the Unix epoch.
+   *
+   * Deliberately an absolute fact rather than an elapsed duration. "Age right
+   * now" changes continuously while the provider payload does not, so deriving
+   * it here would make the evidence hash depend on wall-clock time. Age is
+   * computed at evaluation time from this field plus the evaluation context.
+   * See docs/adr/0004-evidence-versus-context.md.
+   */
+  | 'unix_seconds'
   /** A boolean flag. */
   | 'boolean'
   /** An opaque string, compared only by equality or set membership. */
@@ -53,6 +63,15 @@ export interface FieldSpec {
    * `identifier`, which discard no precision.
    */
   readonly rounding?: RoundingMode;
+  /**
+   * Power of ten applied to the provider's value, when it differs from the
+   * unit's default. Negative divides: `-3` converts the milliseconds
+   * DexScreener reports into the seconds this catalog stores.
+   *
+   * Declaring it here keeps unit conversion in the normalizer rather than
+   * leaking it into provider adapters.
+   */
+  readonly scale?: number;
   /** Why this direction is the fail-closed one. Surfaced in the docs and API. */
   readonly rationale: string;
 }
@@ -113,11 +132,13 @@ export const FIELD_CATALOG = [
       'A distribution signal used as a minimum. Rounding down never invents holders that do not exist.',
   },
   {
-    field: 'pair_age_seconds',
-    unit: 'count',
-    rounding: 'floor',
+    field: 'pair_created_at_unix',
+    unit: 'unix_seconds',
+    rounding: 'ceil',
+    // DexScreener reports pair creation in milliseconds.
+    scale: -3,
     rationale:
-      'Age is used as a minimum maturity requirement. Rounding down keeps a pair from appearing older, and therefore safer, than it is.',
+      'An absolute instant, not an elapsed duration, so the evidence hash does not change as time passes. Rounds up (later) because a later creation time makes a pair look younger, which is the conservative reading for any minimum-maturity rule.',
   },
   {
     field: 'is_honeypot',

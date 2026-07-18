@@ -1,12 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { normalizeEvidence } from '@sentinel/normalizer';
 import { extractGoPlus, goPlusChainId } from './goplus.js';
-import {
-  extractDexScreener,
-  selectPair,
-  pairAgeSeconds,
-  dexScreenerChainSlug,
-} from './dexscreener.js';
+import { extractDexScreener, selectPair, dexScreenerChainSlug } from './dexscreener.js';
 import { extractBasescan, isVerified } from './basescan.js';
 import {
   GOPLUS_SAFE_TOKEN,
@@ -142,21 +137,19 @@ describe('DexScreener adapter', () => {
   it('does not sum liquidity across pools', () => {
     // Summing would flatter a token by counting dust pools toward a threshold.
     const fields = byField(
-      extractDexScreener(DEXSCREENER_MULTI_PAIR, { chain: 'base', address: WETH }, 0),
+      extractDexScreener(DEXSCREENER_MULTI_PAIR, { chain: 'base', address: WETH }),
     );
     expect(fields['liquidity_usd']).toBe(125_000.4482);
   });
 
   it('returns nothing when the token has no pair on the chain', () => {
     expect(selectPair(DEXSCREENER_MULTI_PAIR.pairs, 'solana')).toBeUndefined();
-    expect(extractDexScreener(DEXSCREENER_NO_PAIRS, { chain: 'base', address: WETH }, 0)).toEqual(
-      [],
-    );
+    expect(extractDexScreener(DEXSCREENER_NO_PAIRS, { chain: 'base', address: WETH })).toEqual([]);
   });
 
   it('contributes only the fields a sparse pair actually reports', () => {
     const fields = byField(
-      extractDexScreener(DEXSCREENER_SPARSE, { chain: 'base', address: WETH }, 0),
+      extractDexScreener(DEXSCREENER_SPARSE, { chain: 'base', address: WETH }),
     );
     expect('liquidity_usd' in fields).toBe(false);
     expect(fields['token_symbol']).toBe('THIN');
@@ -166,34 +159,8 @@ describe('DexScreener adapter', () => {
     const payload = {
       pairs: [{ chainId: 'base', pairAddress: '0xa', fdv: 999, liquidity: { usd: 1 } }],
     };
-    const fields = byField(extractDexScreener(payload, { chain: 'base', address: WETH }, 0));
+    const fields = byField(extractDexScreener(payload, { chain: 'base', address: WETH }));
     expect(fields['market_cap_usd']).toBe(999);
-  });
-});
-
-describe('pairAgeSeconds', () => {
-  const created = 1_700_000_000_000;
-
-  it('computes whole seconds of age', () => {
-    expect(pairAgeSeconds(created, created + 90_000)).toBe(90);
-  });
-
-  it('floors partial seconds', () => {
-    expect(pairAgeSeconds(created, created + 1_999)).toBe(1);
-  });
-
-  it('returns zero for a pair created this instant', () => {
-    expect(pairAgeSeconds(created, created)).toBe(0);
-  });
-
-  it('returns undefined for a future timestamp rather than a negative age', () => {
-    // A negative count would be rejected downstream; absent is the honest answer.
-    expect(pairAgeSeconds(created, created - 5_000)).toBeUndefined();
-  });
-
-  it('returns undefined when no creation time is reported', () => {
-    expect(pairAgeSeconds(undefined, created)).toBeUndefined();
-    expect(pairAgeSeconds(Number.NaN, created)).toBeUndefined();
   });
 });
 
@@ -249,7 +216,7 @@ describe('adapters feed the normalizer correctly', () => {
   it('produces integer evidence from a full provider sweep', () => {
     const contributions = [
       ...extractGoPlus(GOPLUS_SAFE_TOKEN, { chain: 'base', address: WETH }),
-      ...extractDexScreener(DEXSCREENER_MULTI_PAIR, { chain: 'base', address: WETH }, 0),
+      ...extractDexScreener(DEXSCREENER_MULTI_PAIR, { chain: 'base', address: WETH }),
       ...extractBasescan(BASESCAN_VERIFIED),
     ];
     const bundle = normalizeEvidence(contributions, [], ['goplus', 'basescan', 'dexscreener']);
@@ -272,7 +239,7 @@ describe('adapters feed the normalizer correctly', () => {
     // Both GoPlus and DexScreener report a symbol.
     const contributions = [
       ...extractGoPlus(GOPLUS_SAFE_TOKEN, { chain: 'base', address: WETH }),
-      ...extractDexScreener(DEXSCREENER_MULTI_PAIR, { chain: 'base', address: WETH }, 0),
+      ...extractDexScreener(DEXSCREENER_MULTI_PAIR, { chain: 'base', address: WETH }),
     ];
     const bundle = normalizeEvidence(contributions, [], ['goplus', 'dexscreener']);
     expect(bundle.sources['token_symbol']).toBe('goplus');

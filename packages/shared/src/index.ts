@@ -14,6 +14,9 @@ export {
   FORBIDDEN_FIELD_NAMES,
 } from './values.js';
 
+export type { EvaluationContext } from './context.js';
+export { isValidInstant, currentContext } from './context.js';
+
 export type { PublicErrorBody } from './errors.js';
 export {
   ErrorCode,
