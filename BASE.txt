@@ -1,722 +1,879 @@
-# Claude Code Project Charter
+# Sentinel Miner
 
-You are acting as a **Senior Staff Software Engineer, Tech Lead, Solutions Architect, DevOps Engineer, QA Engineer, Security Engineer, and Technical Writer** responsible for delivering a production-quality project from research through implementation.
+## Policy-as-a-Miner for Autonomous Agents
 
-The project is called **Sentinel Miner**.
+**Tagline**
 
-Your goal is **not** to generate code as quickly as possible.
-
-Your goal is to build a production-grade, well-tested, maintainable, extensible project that follows senior engineering practices.
+*A deterministic policy evaluation engine that enables autonomous agents to make trustworthy decisions using programmable security policies and verifiable on-chain evidence.*
 
 ---
 
-# Project Overview
+# Executive Summary
 
-Build **Sentinel Miner**, a deterministic **Policy-as-a-Miner** for the Telegraph Protocol.
+Autonomous agents are becoming increasingly capable of interacting with blockchains and external systems. However, most APIs only return raw data, leaving every application to implement its own security checks, validation logic, and decision-making process.
 
-Instead of returning raw blockchain API responses, Sentinel Miner evaluates an intended blockchain action against programmable JSON policies using verified evidence from multiple providers and returns a deterministic ALLOW/BLOCK decision with explainable rule evaluations and reproducible proof hashes.
+**Sentinel Miner** introduces the concept of **Policy-as-a-Miner**.
 
-The architecture must remain domain-agnostic.
+Instead of simply exposing blockchain information, Sentinel Miner evaluates an agent's intended action against programmable policies using verified evidence collected from multiple providers. It then returns a deterministic **ALLOW** or **BLOCK** decision together with transparent rule evaluations and reproducible proof hashes.
 
-The blockchain implementation is only the first evidence adapter.
-
----
-
-# Primary Objectives
-
-Build a system that demonstrates:
-
-* Deterministic evaluation
-* Explainable rule execution
-* Stable proof generation
-* Modular architecture
-* Excellent developer experience
-* Production-quality code
-* Comprehensive documentation
-* Strong automated testing
-* Easy extensibility
+The miner acts as a reusable decision layer that any autonomous agent can consume.
 
 ---
 
-# Working Principles
+# Problem Statement
 
-Never rush implementation.
+Current autonomous agents typically perform the following workflow:
 
-Always follow this workflow.
+```
+Agent
+   │
+   ▼
+Query Multiple APIs
+   │
+   ├── GoPlus
+   ├── DexScreener
+   ├── Basescan
+   │
+   ▼
+Receive Large JSON Responses
+   │
+   ▼
+Custom Decision Logic
+   │
+   ▼
+Execute Action
+```
 
-Research
+This creates several problems:
+
+* Every developer must manually integrate multiple APIs.
+* Decision logic is duplicated across applications.
+* Security policies are inconsistent.
+* Results are difficult to verify.
+* There is no standard deterministic decision layer.
+
+---
+
+# Solution
+
+Sentinel Miner transforms raw evidence into a verifiable decision.
+
+```
+Agent
 
 ↓
 
-Architecture
+Intent + Policy
 
 ↓
 
-Planning
+Sentinel Miner
 
 ↓
+
+Evidence Collection
+
+↓
+
+Evidence Normalization
+
+↓
+
+Deterministic Policy Engine
+
+↓
+
+Proof Generator
+
+↓
+
+ALLOW / BLOCK
+```
+
+Instead of asking:
+
+> "What does this API return?"
+
+Applications ask:
+
+> "Should this action be allowed under this policy?"
+
+---
+
+# Core Philosophy
+
+Sentinel Miner is **not** another blockchain API wrapper.
+
+It is a deterministic policy evaluation engine.
+
+It transforms
+
+```
+Evidence
+
++
+
+Policy
+
+↓
+
+Deterministic Decision
+```
+
+The blockchain use case is simply the first implementation.
+
+The architecture is designed to support any domain where decisions can be made from structured evidence.
+
+---
+
+# High-Level Architecture
+
+```
+                  Agent
+                    │
+        Intent + Policy (DSL)
+                    │
+                    ▼
+             Sentinel Miner
+                    │
+────────────────────────────────────
+          Evidence Providers
+────────────────────────────────────
+GoPlus
+DexScreener
+Basescan
+────────────────────────────────────
+                    │
+                    ▼
+         Evidence Normalizer
+                    │
+                    ▼
+          Deterministic Engine
+                    │
+                    ▼
+            Proof Generator
+                    │
+                    ▼
+           ALLOW / BLOCK Response
+```
+
+---
+
+# System Components
+
+## 1. Evidence Providers
+
+Purpose:
+
+Collect verified information from external services.
+
+Initial Providers
+
+* GoPlus
+* DexScreener
+* Basescan
+
+Each provider only fetches data.
+
+Providers never evaluate policies.
+
+---
+
+## 2. Evidence Cache
+
+Purpose:
+
+Prevent API rate limiting while guaranteeing deterministic evidence.
 
 Implementation
 
-↓
-
-Testing
-
-↓
-
-Refactoring
-
-↓
-
-Documentation
-
-↓
-
-Review
-
-↓
-
-Repeat
-
-Never skip any phase.
-
----
-
-# Development Workflow
-
-For every feature:
-
-1. Research best practices
-2. Design the API
-3. Design interfaces
-4. Explain tradeoffs
-5. Write tests first (TDD)
-6. Implement
-7. Run tests
-8. Lint
-9. Static analysis
-10. Refactor
-11. Document
-12. Commit
-
-Repeat until complete.
-
----
-
-# Research Requirements
-
-Before implementing anything:
-
-Research:
-
-* Telegraph Protocol
-* Miner architecture
-* Evaluation scripts
-* TypeScript best practices
-* Fastify
-* Zod
 * NodeCache
-* fast-json-stable-stringify
-* SHA-256 hashing
-* Clean Architecture
-* Hexagonal Architecture
-* Domain Driven Design
-* TDD
-* SOLID principles
-* API design
-* JSON DSL design
-* Production logging
-* Error handling
-* Security best practices
-* REST API conventions
+* TTL: 60 seconds
 
-Summarize findings before writing code.
+Benefits
+
+* Faster responses
+* Reduced API calls
+* Stable demo
+* Identical evidence for repeated evaluations
 
 ---
 
-# Required Architecture
+## 3. Evidence Normalizer
 
-Use Clean Architecture.
+Different providers expose different schemas.
 
-Example:
-
-apps/
-
-api/
-
-web/
-
-packages/
-
-engine/
-
-providers/
-
-proof/
-
-normalizer/
-
-shared/
-
-dsl/
-
-evaluation/
-
-datasets/
-
-docs/
-
-No business logic should exist inside route handlers.
-
-Business logic belongs inside the engine.
-
----
-
-# Domain Model
-
-Core concepts:
-
-Policy
-
-Rule
-
-Evidence
-
-Evidence Provider
-
-Normalizer
-
-Decision
-
-Proof
-
-Evaluation
-
-Operator
-
-Validator
-
-These should be independent modules.
-
----
-
-# DSL
-
-Design a robust JSON DSL.
-
-Support:
-
-==
-
-!=
-
-<
-
-<=
-
->
-
-> =
-
-in
-
-not_in
-
-exists
-
-Design for future expansion.
-
----
-
-# Evidence Providers
-
-Initially implement:
+Example
 
 GoPlus
 
+```
+buy_tax
+```
+
 DexScreener
+
+```
+liquidity.usd
+```
 
 Basescan
 
-Each provider must implement a common interface.
+```
+verified_contract
+```
 
-Never couple providers to the engine.
+Sentinel Miner converts all provider outputs into a single deterministic schema.
 
----
+Example
 
-# Normalizer
+```json
+{
+  "buy_tax_bp": 250,
+  "sell_tax_bp": 400,
+  "liquidity_usd": 125000,
+  "is_honeypot": false,
+  "contract_verified": true
+}
+```
 
-Normalize provider responses into deterministic integer-based fields.
+Important:
 
-Never use floating point values inside the engine.
+All numeric values are normalized into integers.
 
-Taxes should use basis points.
+Examples
 
-Money should be rounded to integers.
+* Taxes stored as basis points.
+* Liquidity rounded to whole dollars.
 
----
-
-# Policy Engine
-
-Pure deterministic logic.
-
-No AI.
-
-No probabilities.
-
-No confidence scores.
-
-No randomness.
-
-The same input must always generate the same output.
+This completely avoids floating-point inconsistencies.
 
 ---
 
-# Proof System
+## 4. Policy DSL
 
-Implement deterministic proofs.
+Policies are written as structured JSON.
 
-Use:
+Example
 
+```json
+{
+  "intent": "swap",
+  "policy": [
+    {
+      "field": "buy_tax_bp",
+      "operator": "<=",
+      "value": 500
+    },
+    {
+      "field": "liquidity_usd",
+      "operator": ">",
+      "value": 10000
+    },
+    {
+      "field": "is_honeypot",
+      "operator": "==",
+      "value": false
+    }
+  ]
+}
+```
+
+The policy engine knows nothing about APIs.
+
+It only evaluates fields.
+
+---
+
+# Supported Operators
+
+```
+==
+!=
+<
+<=
+>
+>=
+in
+not_in
+exists
+```
+
+Every rule produces
+
+```
+PASS
+
+or
+
+FAIL
+```
+
+---
+
+# Policy Validation
+
+Before execution every policy is validated.
+
+Checks include
+
+* Supported operator
+* Valid field
+* Correct value type
+* Required properties
+* DSL version compatibility
+
+Invalid policies are rejected immediately.
+
+---
+
+# Rule Evaluation Engine
+
+Every rule returns structured output.
+
+Example
+
+```json
+{
+  "field": "buy_tax_bp",
+  "operator": "<=",
+  "expected": 500,
+  "actual": 620,
+  "passed": false
+}
+```
+
+The final decision is deterministic.
+
+```
+All Rules Pass
+
+↓
+
+ALLOW
+```
+
+Otherwise
+
+```
+BLOCK
+```
+
+---
+
+# Explanation Engine
+
+Human-readable explanations are generated from failed rules.
+
+Example
+
+```
+Liquidity of $4,200 is below the required threshold of $10,000.
+```
+
+Every decision remains fully explainable.
+
+---
+
+# Deterministic Proof System
+
+Every response contains reproducible proof hashes.
+
+Canonical serialization is performed using
+
+```
 fast-json-stable-stringify
+```
 
-for canonical serialization.
+Hash generation
 
-Never use JSON.stringify() for hashing.
+```
+Stable JSON
 
-Hash:
+↓
 
-Policy
+SHA-256
 
-Evidence
+↓
 
-Decision
+Hash
+```
 
-Use SHA-256.
+Proof Object
 
----
+```json
+{
+  "proof": {
+    "engine_version": "1.0.0",
+    "dsl_version": "1.0",
+    "timestamp": 1784409755,
+    "policy_hash": "...",
+    "evidence_hash": "...",
+    "decision_hash": "..."
+  }
+}
+```
 
-# Caching
-
-Implement:
-
-NodeCache
-
-TTL = 60 seconds
-
-The cache belongs inside the provider layer.
-
----
-
-# Validation
-
-Use Zod.
-
-Validate:
-
-Policies
-
-Requests
-
-Provider responses
-
-Configurations
-
-Environment variables
-
-Never trust input.
+The same policy and evidence always generate the same proof.
 
 ---
 
-# API
-
-Implement:
-
-POST /evaluate
-
-GET /health
-
-GET /version
-
-GET /policies
-
-Design APIs following REST best practices.
-
-Generate OpenAPI documentation automatically.
-
----
-
-# Testing
-
-Strict Test Driven Development.
-
-Every feature requires:
-
-Unit Tests
-
-Integration Tests
-
-Contract Tests
-
-End-to-End Tests
-
-Regression Tests
-
-Snapshot Tests where appropriate
-
-Target:
-
-95%+ coverage.
-
-Test:
-
-Operators
-
-Policy parsing
-
-Proof hashes
-
-Caching
-
-Providers
-
-Normalizer
-
-Decision engine
-
-API
-
-Edge cases
-
-Error handling
-
-Invalid policies
-
-Missing fields
-
-Timeouts
-
-Rate limiting
-
----
-
-# Code Quality
-
-Use:
-
-TypeScript strict mode
-
-ESLint
-
-Prettier
-
-Husky
-
-lint-staged
-
-Commitlint
-
-EditorConfig
-
-Never ignore warnings.
-
----
-
-# CI/CD
-
-Create GitHub Actions.
-
-Run automatically:
-
-Install
-
-Lint
-
-Typecheck
-
-Tests
-
-Coverage
-
-Build
-
-Fail on errors.
-
----
-
-# Git
-
-Initialize Git.
-
-Create meaningful commits.
-
-Follow Conventional Commits.
-
-Examples:
-
-feat:
-
-fix:
-
-refactor:
-
-docs:
-
-test:
-
-chore:
-
-Never create massive commits.
-
----
-
-# Documentation
-
-Create:
-
-README
-
-Architecture.md
-
-API.md
-
-DSL.md
-
-ProofSystem.md
-
-Contributing.md
-
-Development.md
-
-ADR documents
-
-Sequence diagrams
-
-Flow diagrams
-
-Mermaid architecture diagrams
-
-Well-commented code.
-
-Document every public interface.
-
----
-
-# Logging
-
-Implement structured logging.
-
-No console.log.
-
-Use Pino.
-
-Support:
-
-Development
-
-Production
-
-Error logs
-
-Request logs
-
-Provider logs
-
----
-
-# Error Handling
-
-Never crash.
-
-Gracefully handle:
-
-Timeouts
-
-Rate limits
-
-Provider failures
-
-Malformed policies
-
-Invalid operators
-
-Missing evidence
-
-Network failures
-
-Return meaningful error messages.
-
----
-
-# Configuration
-
-Use environment variables.
-
-Validate them with Zod.
-
-No magic constants.
-
----
-
-# Security
-
-Validate all input.
-
-Prevent prototype pollution.
-
-Rate limit endpoints.
-
-Sanitize output.
-
-Never expose secrets.
-
-Never log API keys.
+# Example Response
+
+```json
+{
+  "decision": "BLOCK",
+  "rules": [
+    {
+      "field": "buy_tax_bp",
+      "expected": "<=500",
+      "actual": 250,
+      "passed": true
+    },
+    {
+      "field": "liquidity_usd",
+      "expected": ">10000",
+      "actual": 4200,
+      "passed": false
+    }
+  ],
+  "evidence": {
+    "...": "..."
+  },
+  "proof": {
+    "...": "..."
+  }
+}
+```
 
 ---
 
 # Evaluation Framework
 
-Create:
+The project includes a reusable evaluation framework that benchmarks miners against public ground-truth datasets.
+
+Workflow
+
+```
+Dataset
+
+↓
+
+Call Miner
+
+↓
+
+Receive Decision
+
+↓
+
+Compare with Ground Truth
+
+↓
+
+Generate Metrics
+```
+
+Metrics
+
+* Decision Accuracy
+* Rule Accuracy
+* Precision
+* Recall
+* F1 Score
+* Average Latency
+* Determinism
+* Evidence Completeness
+* Hash Consistency
+
+Example Output
+
+```
+==================================
+
+Sentinel Miner Evaluation
+
+==================================
+
+Dataset Size:          100
+
+Correct Decisions:      98
+
+False Allow:             0
+
+False Block:             2
+
+Precision:            100%
+
+Recall:                96%
+
+Latency:            610 ms
+
+Determinism:         100%
+
+==================================
+
+PASS
+
+==================================
+```
+
+---
+
+# Dataset Structure
+
+```
+datasets/
+
+safe_tokens.json
+
+honeypots.json
+
+rugpulls.json
+
+high_tax.json
+
+low_liquidity.json
+
+edge_cases.json
+
+expected_results.json
+```
+
+The evaluation datasets are static and versioned.
+
+No live API calls are required.
+
+This guarantees reproducibility.
+
+---
+
+# API Endpoints
+
+## POST /evaluate
+
+Evaluates an intent against a supplied policy.
+
+Returns
+
+* Decision
+* Rule evaluations
+* Evidence
+* Proof object
+
+---
+
+## GET /health
+
+Returns miner health.
+
+---
+
+## GET /version
+
+Returns
+
+* Engine version
+* DSL version
+* Supported operators
+
+---
+
+## GET /policies
+
+Returns built-in reusable policies.
+
+Example
+
+* strict_treasury
+* retail_wallet
+* meme_coin
+* high_risk
+
+---
+
+# Repository Structure
+
+```
+sentinel-miner/
+
+apps/
+    api/
+    web/
+
+packages/
+
+    engine/
+        evaluator.ts
+        operators.ts
+        validator.ts
+
+    providers/
+        goplus.ts
+        dexscreener.ts
+        basescan.ts
+
+    normalizer/
+
+    proof/
+
+    shared/
 
 datasets/
 
 evaluation/
 
-Build a benchmark runner.
+docs/
 
-Metrics:
-
-Accuracy
-
-Precision
-
-Recall
-
-Latency
-
-Determinism
-
-Evidence completeness
-
-Hash consistency
-
-Output professional benchmark reports.
+README.md
+```
 
 ---
 
-# Frontend (Optional)
+# Technology Stack
 
-Build a simple dashboard.
+Backend
 
-Features:
+* TypeScript
+* Node.js
+* Fastify (or Express)
+* Zod
+* Axios
 
-Paste token
+Evidence Providers
 
-Edit policy
+* GoPlus API
+* DexScreener API
+* Basescan API
 
-Evaluate
+Deterministic Proof
 
-View evidence
+* fast-json-stable-stringify
+* Node.js crypto (SHA-256)
 
-View proof
+Caching
 
-Rule breakdown
+* NodeCache
 
-Dark mode
+Frontend (Optional)
 
-Responsive
+* Next.js
+* React
+* Tailwind CSS
 
----
+Evaluation
 
-# Engineering Standards
-
-Prefer composition over inheritance.
-
-Keep functions small.
-
-Single responsibility.
-
-Dependency injection where appropriate.
-
-No duplicated logic.
-
-No long functions.
-
-No God classes.
-
-No circular dependencies.
-
-No hidden state.
+* Python
+* pytest
 
 ---
 
-# Code Review
+# Phase-wise Execution Plan
 
-After each completed feature:
+## Phase 1 – Core Policy Engine
 
-Review your own code.
+Objective
 
-Look for:
+Build the deterministic execution engine without external dependencies.
 
-Performance
+Deliverables
 
-Readability
+* DSL parser
+* Rule evaluator
+* Policy validator
+* Decision engine
+* Unit tests
+* Mock datasets
 
-Security
+Output
 
-Maintainability
-
-Complexity
-
-Refactor where needed.
-
----
-
-# Completion Criteria
-
-The project is only complete when:
-
-All tests pass.
-
-Coverage exceeds 95%.
-
-Lint passes.
-
-Type checking passes.
-
-Documentation is complete.
-
-Git history is clean.
-
-Architecture is modular.
-
-No TODOs remain.
-
-No warnings remain.
-
-The project can be cloned, installed, tested, and run with a single command.
+Offline deterministic evaluation.
 
 ---
 
-# Continuous Loop
+## Phase 2 – Evidence Layer
 
-Continue iterating until all completion criteria are satisfied.
+Objective
 
-If you discover architectural issues:
+Integrate live blockchain data.
 
-Pause implementation.
+Deliverables
 
-Refactor.
+* GoPlus provider
+* DexScreener provider
+* Basescan provider
+* Evidence normalization
+* Provider caching
 
-Update documentation.
+Output
 
-Re-run tests.
+Live evidence collection with deterministic normalization.
 
-Continue.
+---
 
-Never stop after generating code.
+## Phase 3 – Proof Engine
 
-Always continue improving until the project reaches production quality.
+Objective
 
-If uncertain about a design decision, research industry best practices, explain the trade-offs, choose the most maintainable solution, and document the decision in an Architecture Decision Record (ADR).
+Generate reproducible proofs.
+
+Deliverables
+
+* Stable JSON serialization
+* SHA-256 hashing
+* Proof generator
+* Engine versioning
+* DSL versioning
+
+Output
+
+Verifiable proof object.
+
+---
+
+## Phase 4 – Evaluation Framework
+
+Objective
+
+Benchmark the miner.
+
+Deliverables
+
+* Public datasets
+* Evaluation script
+* Metrics
+* Benchmark report
+
+Output
+
+Automated reproducible benchmarking.
+
+---
+
+## Phase 5 – Miner API
+
+Objective
+
+Expose the engine as a Telegraph-compatible miner.
+
+Deliverables
+
+* REST API
+* Documentation
+* Sample requests
+* Example policies
+
+Output
+
+Production-ready miner service.
+
+---
+
+## Phase 6 – Demo Interface (Optional)
+
+Objective
+
+Provide an interactive demonstration.
+
+Deliverables
+
+* Contract input
+* Policy editor
+* Decision visualization
+* Rule breakdown
+* Proof viewer
+
+Output
+
+Interactive web demo.
+
+---
+
+# Demo Scenario
+
+**Agent A**
+
+Policy
+
+Strict Treasury
+
+↓
+
+Decision
+
+BLOCK
+
+---
+
+**Agent B**
+
+Policy
+
+High Risk
+
+↓
+
+Decision
+
+ALLOW
+
+Both agents receive identical evidence.
+
+The different outcomes are entirely explained by their respective policies, demonstrating that Sentinel Miner evaluates policy rather than making arbitrary judgments.
+
+---
+
+# Deliverables Checklist
+
+Core Engine
+
+* Deterministic policy engine
+* Policy DSL
+* Rule evaluator
+* Policy validator
+* Integer normalization
+
+Evidence
+
+* GoPlus integration
+* DexScreener integration
+* Basescan integration
+* Evidence normalization
+* Provider cache
+
+Proof
+
+* Stable JSON serialization
+* SHA-256 proof generation
+* Versioning
+* Deterministic hashes
+
+Evaluation
+
+* Public datasets
+* Benchmark script
+* Metrics report
+
+API
+
+* Evaluation endpoint
+* Health endpoint
+* Version endpoint
+* Policy endpoint
+
+Documentation
+
+* Architecture diagram
+* README
+* Setup guide
+* Demo video
+
+---
+
+# Future Scope
+
+Although the initial implementation focuses on blockchain security and token swaps, Sentinel Miner is fundamentally domain-agnostic. By replacing the evidence providers and defining new policies, the same deterministic engine can support wallet risk analysis, compliance workflows, identity verification, fraud detection, insurance claim validation, API access control, enterprise governance, and many other policy-driven decision systems.
+
+The long-term vision is to establish Sentinel Miner as a reusable policy execution layer that enables autonomous agents to make transparent, deterministic, and verifiable decisions across multiple domains rather than simply consuming raw API responses.
+
 
