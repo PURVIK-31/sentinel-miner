@@ -2,5 +2,10 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "../../tsconfig.base.json",
   "compilerOptions": { "composite": false, "noEmit": true },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts"],
+  "references": [
+    { "path": "../shared/tsconfig.build.json" },
+    { "path": "../dsl/tsconfig.build.json" },
+    { "path": "../engine/tsconfig.build.json" }
+  ]
 }
