@@ -1,0 +1,18 @@
+# Normalize all text to LF in the repository and on checkout.
+#
+# Prettier is pinned to `endOfLine: lf`. Without this, Git's autocrlf would hand
+# Windows contributors CRLF working copies that immediately fail `format:check`,
+# while CI on Linux passed — a difference that has nothing to do with the code.
+* text=auto eol=lf
+
+# Lockfiles and generated output should never be diffed by hand.
+package-lock.json -diff linguist-generated
+*.snap -diff
+
+# Binary assets, never line-ending converted.
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary

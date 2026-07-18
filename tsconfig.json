@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true
+  },
+  "files": [],
+  "references": [
+    { "path": "./packages/shared/tsconfig.build.json" },
+    { "path": "./packages/dsl/tsconfig.build.json" },
+    { "path": "./packages/engine/tsconfig.build.json" },
+    { "path": "./packages/normalizer/tsconfig.build.json" },
+    { "path": "./packages/providers/tsconfig.build.json" }
+  ]
+}
