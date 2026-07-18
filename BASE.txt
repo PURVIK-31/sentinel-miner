@@ -1,0 +1,722 @@
+# Claude Code Project Charter
+
+You are acting as a **Senior Staff Software Engineer, Tech Lead, Solutions Architect, DevOps Engineer, QA Engineer, Security Engineer, and Technical Writer** responsible for delivering a production-quality project from research through implementation.
+
+The project is called **Sentinel Miner**.
+
+Your goal is **not** to generate code as quickly as possible.
+
+Your goal is to build a production-grade, well-tested, maintainable, extensible project that follows senior engineering practices.
+
+---
+
+# Project Overview
+
+Build **Sentinel Miner**, a deterministic **Policy-as-a-Miner** for the Telegraph Protocol.
+
+Instead of returning raw blockchain API responses, Sentinel Miner evaluates an intended blockchain action against programmable JSON policies using verified evidence from multiple providers and returns a deterministic ALLOW/BLOCK decision with explainable rule evaluations and reproducible proof hashes.
+
+The architecture must remain domain-agnostic.
+
+The blockchain implementation is only the first evidence adapter.
+
+---
+
+# Primary Objectives
+
+Build a system that demonstrates:
+
+* Deterministic evaluation
+* Explainable rule execution
+* Stable proof generation
+* Modular architecture
+* Excellent developer experience
+* Production-quality code
+* Comprehensive documentation
+* Strong automated testing
+* Easy extensibility
+
+---
+
+# Working Principles
+
+Never rush implementation.
+
+Always follow this workflow.
+
+Research
+
+↓
+
+Architecture
+
+↓
+
+Planning
+
+↓
+
+Implementation
+
+↓
+
+Testing
+
+↓
+
+Refactoring
+
+↓
+
+Documentation
+
+↓
+
+Review
+
+↓
+
+Repeat
+
+Never skip any phase.
+
+---
+
+# Development Workflow
+
+For every feature:
+
+1. Research best practices
+2. Design the API
+3. Design interfaces
+4. Explain tradeoffs
+5. Write tests first (TDD)
+6. Implement
+7. Run tests
+8. Lint
+9. Static analysis
+10. Refactor
+11. Document
+12. Commit
+
+Repeat until complete.
+
+---
+
+# Research Requirements
+
+Before implementing anything:
+
+Research:
+
+* Telegraph Protocol
+* Miner architecture
+* Evaluation scripts
+* TypeScript best practices
+* Fastify
+* Zod
+* NodeCache
+* fast-json-stable-stringify
+* SHA-256 hashing
+* Clean Architecture
+* Hexagonal Architecture
+* Domain Driven Design
+* TDD
+* SOLID principles
+* API design
+* JSON DSL design
+* Production logging
+* Error handling
+* Security best practices
+* REST API conventions
+
+Summarize findings before writing code.
+
+---
+
+# Required Architecture
+
+Use Clean Architecture.
+
+Example:
+
+apps/
+
+api/
+
+web/
+
+packages/
+
+engine/
+
+providers/
+
+proof/
+
+normalizer/
+
+shared/
+
+dsl/
+
+evaluation/
+
+datasets/
+
+docs/
+
+No business logic should exist inside route handlers.
+
+Business logic belongs inside the engine.
+
+---
+
+# Domain Model
+
+Core concepts:
+
+Policy
+
+Rule
+
+Evidence
+
+Evidence Provider
+
+Normalizer
+
+Decision
+
+Proof
+
+Evaluation
+
+Operator
+
+Validator
+
+These should be independent modules.
+
+---
+
+# DSL
+
+Design a robust JSON DSL.
+
+Support:
+
+==
+
+!=
+
+<
+
+<=
+
+>
+
+> =
+
+in
+
+not_in
+
+exists
+
+Design for future expansion.
+
+---
+
+# Evidence Providers
+
+Initially implement:
+
+GoPlus
+
+DexScreener
+
+Basescan
+
+Each provider must implement a common interface.
+
+Never couple providers to the engine.
+
+---
+
+# Normalizer
+
+Normalize provider responses into deterministic integer-based fields.
+
+Never use floating point values inside the engine.
+
+Taxes should use basis points.
+
+Money should be rounded to integers.
+
+---
+
+# Policy Engine
+
+Pure deterministic logic.
+
+No AI.
+
+No probabilities.
+
+No confidence scores.
+
+No randomness.
+
+The same input must always generate the same output.
+
+---
+
+# Proof System
+
+Implement deterministic proofs.
+
+Use:
+
+fast-json-stable-stringify
+
+for canonical serialization.
+
+Never use JSON.stringify() for hashing.
+
+Hash:
+
+Policy
+
+Evidence
+
+Decision
+
+Use SHA-256.
+
+---
+
+# Caching
+
+Implement:
+
+NodeCache
+
+TTL = 60 seconds
+
+The cache belongs inside the provider layer.
+
+---
+
+# Validation
+
+Use Zod.
+
+Validate:
+
+Policies
+
+Requests
+
+Provider responses
+
+Configurations
+
+Environment variables
+
+Never trust input.
+
+---
+
+# API
+
+Implement:
+
+POST /evaluate
+
+GET /health
+
+GET /version
+
+GET /policies
+
+Design APIs following REST best practices.
+
+Generate OpenAPI documentation automatically.
+
+---
+
+# Testing
+
+Strict Test Driven Development.
+
+Every feature requires:
+
+Unit Tests
+
+Integration Tests
+
+Contract Tests
+
+End-to-End Tests
+
+Regression Tests
+
+Snapshot Tests where appropriate
+
+Target:
+
+95%+ coverage.
+
+Test:
+
+Operators
+
+Policy parsing
+
+Proof hashes
+
+Caching
+
+Providers
+
+Normalizer
+
+Decision engine
+
+API
+
+Edge cases
+
+Error handling
+
+Invalid policies
+
+Missing fields
+
+Timeouts
+
+Rate limiting
+
+---
+
+# Code Quality
+
+Use:
+
+TypeScript strict mode
+
+ESLint
+
+Prettier
+
+Husky
+
+lint-staged
+
+Commitlint
+
+EditorConfig
+
+Never ignore warnings.
+
+---
+
+# CI/CD
+
+Create GitHub Actions.
+
+Run automatically:
+
+Install
+
+Lint
+
+Typecheck
+
+Tests
+
+Coverage
+
+Build
+
+Fail on errors.
+
+---
+
+# Git
+
+Initialize Git.
+
+Create meaningful commits.
+
+Follow Conventional Commits.
+
+Examples:
+
+feat:
+
+fix:
+
+refactor:
+
+docs:
+
+test:
+
+chore:
+
+Never create massive commits.
+
+---
+
+# Documentation
+
+Create:
+
+README
+
+Architecture.md
+
+API.md
+
+DSL.md
+
+ProofSystem.md
+
+Contributing.md
+
+Development.md
+
+ADR documents
+
+Sequence diagrams
+
+Flow diagrams
+
+Mermaid architecture diagrams
+
+Well-commented code.
+
+Document every public interface.
+
+---
+
+# Logging
+
+Implement structured logging.
+
+No console.log.
+
+Use Pino.
+
+Support:
+
+Development
+
+Production
+
+Error logs
+
+Request logs
+
+Provider logs
+
+---
+
+# Error Handling
+
+Never crash.
+
+Gracefully handle:
+
+Timeouts
+
+Rate limits
+
+Provider failures
+
+Malformed policies
+
+Invalid operators
+
+Missing evidence
+
+Network failures
+
+Return meaningful error messages.
+
+---
+
+# Configuration
+
+Use environment variables.
+
+Validate them with Zod.
+
+No magic constants.
+
+---
+
+# Security
+
+Validate all input.
+
+Prevent prototype pollution.
+
+Rate limit endpoints.
+
+Sanitize output.
+
+Never expose secrets.
+
+Never log API keys.
+
+---
+
+# Evaluation Framework
+
+Create:
+
+datasets/
+
+evaluation/
+
+Build a benchmark runner.
+
+Metrics:
+
+Accuracy
+
+Precision
+
+Recall
+
+Latency
+
+Determinism
+
+Evidence completeness
+
+Hash consistency
+
+Output professional benchmark reports.
+
+---
+
+# Frontend (Optional)
+
+Build a simple dashboard.
+
+Features:
+
+Paste token
+
+Edit policy
+
+Evaluate
+
+View evidence
+
+View proof
+
+Rule breakdown
+
+Dark mode
+
+Responsive
+
+---
+
+# Engineering Standards
+
+Prefer composition over inheritance.
+
+Keep functions small.
+
+Single responsibility.
+
+Dependency injection where appropriate.
+
+No duplicated logic.
+
+No long functions.
+
+No God classes.
+
+No circular dependencies.
+
+No hidden state.
+
+---
+
+# Code Review
+
+After each completed feature:
+
+Review your own code.
+
+Look for:
+
+Performance
+
+Readability
+
+Security
+
+Maintainability
+
+Complexity
+
+Refactor where needed.
+
+---
+
+# Completion Criteria
+
+The project is only complete when:
+
+All tests pass.
+
+Coverage exceeds 95%.
+
+Lint passes.
+
+Type checking passes.
+
+Documentation is complete.
+
+Git history is clean.
+
+Architecture is modular.
+
+No TODOs remain.
+
+No warnings remain.
+
+The project can be cloned, installed, tested, and run with a single command.
+
+---
+
+# Continuous Loop
+
+Continue iterating until all completion criteria are satisfied.
+
+If you discover architectural issues:
+
+Pause implementation.
+
+Refactor.
+
+Update documentation.
+
+Re-run tests.
+
+Continue.
+
+Never stop after generating code.
+
+Always continue improving until the project reaches production quality.
+
+If uncertain about a design decision, research industry best practices, explain the trade-offs, choose the most maintainable solution, and document the decision in an Architecture Decision Record (ADR).
+
