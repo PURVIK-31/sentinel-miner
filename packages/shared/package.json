@@ -1,0 +1,21 @@
+{
+  "name": "@sentinel/shared",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Pure domain types and error hierarchy shared across Sentinel Miner packages. No runtime dependencies.",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --build"
+  }
+}
