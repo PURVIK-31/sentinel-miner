@@ -3,5 +3,9 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": { "composite": false, "noEmit": true },
   "include": ["src/**/*.ts"],
-  "references": [{ "path": "../shared/tsconfig.build.json" }]
+  "references": [
+    { "path": "../shared/tsconfig.build.json" },
+    { "path": "../dsl/tsconfig.build.json" },
+    { "path": "../engine/tsconfig.build.json" }
+  ]
 }

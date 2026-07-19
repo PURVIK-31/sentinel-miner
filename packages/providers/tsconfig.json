@@ -5,6 +5,8 @@
   "include": ["src/**/*.ts"],
   "references": [
     { "path": "../shared/tsconfig.build.json" },
-    { "path": "../normalizer/tsconfig.build.json" }
+    { "path": "../normalizer/tsconfig.build.json" },
+    { "path": "../dsl/tsconfig.build.json" },
+    { "path": "../engine/tsconfig.build.json" }
   ]
 }
